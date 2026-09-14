@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import {
+  boolean,
   index,
   jsonb,
   pgEnum,
@@ -27,8 +28,13 @@ export const wallets = pgTable(
     id: uuid("id").primaryKey(),
     chain: chainEnum("chain").notNull(),
     address: text("address").notNull(),
-    name: text("name").notNull(),
+    name: text("name"),
     emoji: text("emoji"),
+    alertsOnToast: boolean("alerts_on_toast").notNull().default(true),
+    alertsOnBubble: boolean("alerts_on_bubble").notNull().default(true),
+    alertsOnFeed: boolean("alerts_on_feed").notNull().default(true),
+    sound: text("sound").notNull().default("default"),
+    highlightColor: text("highlight_color"),
     ...timestamps,
   },
   (table) => [uniqueIndex("wallets_chain_address_unique").on(table.chain, table.address)],

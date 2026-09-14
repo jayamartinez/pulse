@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, CircleGauge, List, Menu, Radio, Settings, WalletCards, X } from "lucide-react";
+import { Activity, CircleGauge, List, Menu, Settings, WalletCards, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -15,7 +15,6 @@ const primary = [
   { href: "/lists", label: "Lists", icon: List },
 ];
 const secondary = [
-  { href: "/system", label: "System", icon: Radio },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

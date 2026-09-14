@@ -4,8 +4,13 @@ export type Wallet = {
   id: string;
   chain: Chain;
   address: string;
-  name: string;
+  name: string | null;
   emoji?: string;
+  alertsOnToast: boolean;
+  alertsOnBubble: boolean;
+  alertsOnFeed: boolean;
+  sound: string;
+  highlightColor: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
