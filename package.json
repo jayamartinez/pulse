@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "node --test --experimental-strip-types lib/wallet-transfer/index.test.ts"
+    "test": "node --test --experimental-strip-types lib/wallet-transfer/index.test.ts lib/domain/wallet-event.test.ts"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.13",

@@ -12,7 +12,7 @@ Pulse is a self-hostable wallet-intelligence application. Version 0.1 tracks Sol
 
 PostgreSQL is the system of record. Wallets have a chain, address, custom name, optional emoji, and timestamps. Labels and wallet lists use join tables, so labels and list membership are many-to-many relationships.
 
-`WalletEvent` is provider-neutral. It stores the tracked wallet, chain, event type (`buy`, `sell`, `swap`, or `transfer`), token and value details when available, transaction hash/signature, block and detection timestamps, plus optional source metadata. The UI consumes display data derived from this normalized shape rather than provider-specific transaction responses.
+`WalletEvent` is a provider-neutral discriminated union of `TradeEvent` and `TransferEvent`. Trades carry side, token/native/USD amounts, and market cap; transfers carry from/to addresses and optional resolved wallet identities. Provider metadata may retain the original `swap` source type. The current database enum remains backward-compatible (`buy`, `sell`, `swap`, `transfer`); no migration is needed until persistence is switched to the refined application model.
 
 ## Providers and configuration
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, CircleGauge, List, Menu, Settings, WalletCards, X } from "lucide-react";
+import { Activity, List, Menu, Settings, WalletCards, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -9,7 +9,6 @@ import { PulseMark } from "@/components/pulse-mark";
 import { StatusIndicator } from "@/components/ui";
 
 const primary = [
-  { href: "/overview", label: "Overview", icon: CircleGauge },
   { href: "/activity", label: "Activity", icon: Activity },
   { href: "/wallets", label: "Wallets", icon: WalletCards },
   { href: "/lists", label: "Lists", icon: List },

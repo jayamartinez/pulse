@@ -9,16 +9,10 @@ import { dashboardWallets } from "@/lib/application/pulse-dashboard";
 export default function OverviewPage() {
   return <div className="fade-up">
     <PageHeader title="Overview" description="Wallet intelligence / Solana + Robinhood Chain" actions={<><StatusIndicator label="All streams live" /><AddWalletButton /></>} />
-    <section className="mb-8 flex flex-wrap items-end gap-x-10 gap-y-4 border-y border-[var(--border)] py-4">
-      <div className="mr-auto"><div className="text-[11px] text-[var(--muted)]">24h monitored flow</div><div className="tabular mt-1 text-[26px] font-semibold tracking-[-.04em] text-[var(--text)]">$2.84M</div></div>
-      <OverviewDatum label="Events" value="1,284" detail="53 / HR" />
-      <OverviewDatum label="Active wallets" value="21 / 36" detail="58%" />
-      <OverviewDatum label="Median detect" value="62MS" detail="P95 148MS" mono />
-    </section>
     <div className="space-y-10">
       <section className="overflow-hidden border-t border-[var(--border)]">
         <SectionHeader title="Live activity" detail="Streaming now" action={<Link href="/activity" className="flex items-center gap-1 text-[12px] text-[var(--muted)] hover:text-white">Full stream <ArrowRight className="h-3.5 w-3.5" /></Link>} />
-        <ActivityTable limit={10} />
+        <ActivityTable limit={10} view="trades" />
       </section>
       <div className="grid gap-10 lg:grid-cols-[1fr_320px]">
         <section className="border-t border-[var(--border)]">
@@ -42,6 +36,3 @@ function StreamRow({ label, latency, events, hood = false }: { label: string; la
   return <div className="flex items-center gap-2"><ChainBadge chain={hood ? "HOOD" : "Solana"} /><span className="sr-only">{label}</span><span className="ml-auto text-[11px] text-[var(--muted)]">{events}</span><span className="mono w-12 text-right text-[10px] text-[var(--positive)]">{latency}</span></div>;
 }
 
-function OverviewDatum({ label, value, detail, mono = false }: { label: string; value: string; detail: string; mono?: boolean }) {
-  return <div><div className="text-[11px] text-[var(--muted)]">{label}</div><div className={`mt-1 flex items-baseline gap-2 ${mono ? "mono" : "tabular"}`}><span className="text-[16px] font-medium text-[var(--text)]">{value}</span><span className="text-[10px] text-[var(--muted-2)]">{detail}</span></div></div>;
-}

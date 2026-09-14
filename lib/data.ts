@@ -12,10 +12,19 @@ export type Activity = {
   chain: Chain;
   token: string;
   tokenAddress?: string;
-  amount: string;
-  value: string;
+  tokenAmount?: string;
+  nativeAmount?: string;
+  nativeSymbol?: string;
+  usdValue?: string;
+  marketCapUsd?: string;
+  transferFrom?: string;
+  transferTo?: string;
+  transferToWallet?: string;
+  /** Legacy fixture aliases kept only until repository hydration is wired. */
+  amount?: string;
+  value?: string;
+  latency?: number;
   time: string;
-  latency: number;
   tx: string;
 };
 
@@ -77,7 +86,6 @@ export const activities: Activity[] = Array.from({ length: 40 }, (_, index) => {
     emoji: seed.emoji ?? wallets.find(wallet => wallet.name === seed.wallet)?.emoji,
     id: index + 1,
     time: relativeTimes[Math.min(Math.floor(index / 2), relativeTimes.length - 1)],
-    latency: seed.latency + (index % 5) * 7,
     tx: `${index % 2 === 0 ? "5Fm" : "0x8c"}${(7834 + index * 173).toString(16)}…${(91 + index).toString(16)}`,
   };
 });
