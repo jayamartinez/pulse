@@ -1,0 +1,47 @@
+import { ArrowRight, Radio } from "lucide-react";
+import Link from "next/link";
+import { ActivityTable } from "@/components/activity-table";
+import { AddWalletButton } from "@/components/add-wallet-sheet";
+import { ChainBadge, PageHeader, SectionHeader, StatusIndicator } from "@/components/ui";
+import { WalletIdentity } from "@/components/wallet-identity";
+import { wallets } from "@/lib/data";
+
+export default function OverviewPage() {
+  return <div className="fade-up">
+    <PageHeader title="Overview" description="Wallet intelligence / Solana + Robinhood Chain" actions={<><StatusIndicator label="All streams live" /><AddWalletButton /></>} />
+    <section className="mb-8 flex flex-wrap items-end gap-x-10 gap-y-4 border-y border-[var(--border)] py-4">
+      <div className="mr-auto"><div className="text-[11px] text-[var(--muted)]">24h monitored flow</div><div className="tabular mt-1 text-[26px] font-semibold tracking-[-.04em] text-[var(--text)]">$2.84M</div></div>
+      <OverviewDatum label="Events" value="1,284" detail="53 / HR" />
+      <OverviewDatum label="Active wallets" value="21 / 36" detail="58%" />
+      <OverviewDatum label="Median detect" value="62MS" detail="P95 148MS" mono />
+    </section>
+    <div className="space-y-10">
+      <section className="overflow-hidden border-t border-[var(--border)]">
+        <SectionHeader title="Live activity" detail="Streaming now" action={<Link href="/activity" className="flex items-center gap-1 text-[12px] text-[var(--muted)] hover:text-white">Full stream <ArrowRight className="h-3.5 w-3.5" /></Link>} />
+        <ActivityTable limit={10} />
+      </section>
+      <div className="grid gap-10 lg:grid-cols-[1fr_320px]">
+        <section className="border-t border-[var(--border)]">
+          <SectionHeader title="Recently active" detail="Last 60 min" />
+          <div className="divide-y divide-[var(--border)]">{wallets.slice(0, 5).map(wallet => <div key={wallet.slug} className="flex h-14 items-center justify-between"><WalletIdentity wallet={wallet} /><div className="ml-3 text-right"><div className="tabular text-[12px] text-[var(--text)]">{wallet.volume24h}</div><div className="mt-1 text-[10px] text-[var(--muted-2)]">{wallet.lastSeen}</div></div></div>)}</div>
+        </section>
+        <section className="border-t border-[var(--border)]">
+          <SectionHeader title="Stream health" action={<StatusIndicator label="Healthy" />} />
+          <div className="space-y-4 py-4">
+            <StreamRow label="Solana" latency="54ms" events="38 / min" />
+            <StreamRow label="HOOD" latency="96ms" events="17 / min" hood />
+            <div className="border-t border-[var(--border)] pt-3 text-[11px] text-[var(--muted-2)]"><Radio className="mr-1.5 inline h-3.5 w-3.5 text-[var(--positive)]" />Last event 8 seconds ago</div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>;
+}
+
+function StreamRow({ label, latency, events, hood = false }: { label: string; latency: string; events: string; hood?: boolean }) {
+  return <div className="flex items-center gap-2"><ChainBadge chain={hood ? "HOOD" : "Solana"} /><span className="sr-only">{label}</span><span className="ml-auto text-[11px] text-[var(--muted)]">{events}</span><span className="mono w-12 text-right text-[10px] text-[var(--positive)]">{latency}</span></div>;
+}
+
+function OverviewDatum({ label, value, detail, mono = false }: { label: string; value: string; detail: string; mono?: boolean }) {
+  return <div><div className="text-[11px] text-[var(--muted)]">{label}</div><div className={`mt-1 flex items-baseline gap-2 ${mono ? "mono" : "tabular"}`}><span className="text-[16px] font-medium text-[var(--text)]">{value}</span><span className="text-[10px] text-[var(--muted-2)]">{detail}</span></div></div>;
+}
