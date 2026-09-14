@@ -2,6 +2,7 @@
 
 import { Check, Plus, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { isWalletEmoji } from "@/lib/wallet-transfer";
 import { Button, Input, Label, Select } from "@/components/ui";
 
@@ -56,10 +57,8 @@ export function AddWalletButton({ compact = false }: { compact?: boolean }) {
     }
   }
 
-  return <>
-    <Button variant={compact ? "ghost" : "primary"} className={compact ? "w-full justify-start border-0 px-3 text-[13px] text-[#aaaab0]" : ""} onClick={event => { openerRef.current = event.currentTarget; setOpen(true); }}><Plus className="h-4 w-4" />Add wallet</Button>
-    {open && <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-[1px]" onMouseDown={event => { if (event.target === event.currentTarget) close(); }}>
-      <aside ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="add-wallet-title" onKeyDown={onKeyDown} className="sheet-enter absolute inset-y-0 right-0 flex w-full max-w-[440px] flex-col border-l border-[var(--border-strong)] bg-[var(--surface-1)] shadow-2xl shadow-black/40">
+  const overlay = open && <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-[1px]" onMouseDown={event => { if (event.target === event.currentTarget) close(); }}>
+      <aside ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="add-wallet-title" onKeyDown={onKeyDown} className="sheet-enter fixed inset-y-0 right-0 flex h-dvh w-full max-w-[440px] flex-col border-l border-[var(--border-strong)] bg-[var(--surface-1)] shadow-2xl shadow-black/40">
         <div className="flex h-16 items-center justify-between border-b border-[var(--border)] px-5">
           <div><h2 id="add-wallet-title" className="text-[15px] font-semibold text-white">Add wallet</h2><p className="mt-0.5 text-[11px] text-[var(--muted)]">Start tracking activity in real time.</p></div>
           <button type="button" aria-label="Close add wallet" onClick={close} className="grid h-8 w-8 place-items-center text-[var(--muted)] hover:text-white"><X className="h-4 w-4" /></button>
@@ -76,7 +75,11 @@ export function AddWalletButton({ compact = false }: { compact?: boolean }) {
           <div className="mt-auto flex items-center justify-end gap-2 border-t border-[var(--border)] p-4"><Button type="button" variant="ghost" onClick={close}>Cancel</Button><Button type="submit" disabled={Boolean(emoji && !isWalletEmoji(emoji))} className="min-w-28">{saved ? <><Check className="h-3.5 w-3.5" />Tracking</> : "Add wallet"}</Button></div>
         </form>
       </aside>
-    </div>}
+    </div>;
+
+  return <>
+    <Button variant={compact ? "ghost" : "primary"} className={compact ? "w-full justify-start border-0 px-3 text-[13px] text-[#aaaab0]" : ""} onClick={event => { openerRef.current = event.currentTarget; setOpen(true); }}><Plus className="h-4 w-4" />Add wallet</Button>
+    {typeof document !== "undefined" && overlay && createPortal(overlay, document.body)}
   </>;
 }
 
