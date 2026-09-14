@@ -4,11 +4,11 @@ import { ActivityTable } from "@/components/activity-table";
 import { CopyButton } from "@/components/copy-button";
 import { Button, ChainBadge, Label, Metric, SectionHeader } from "@/components/ui";
 import { WalletIdentity } from "@/components/wallet-identity";
-import { wallets } from "@/lib/data";
+import { dashboardWallets } from "@/lib/application/pulse-dashboard";
 
 export default async function WalletDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const wallet = wallets.find(item => item.slug === slug);
+  const wallet = dashboardWallets.find(item => item.slug === slug);
   if (!wallet) notFound();
   return <div className="fade-up">
     <header className="mb-7 flex flex-wrap items-start justify-between gap-4"><div><WalletIdentity wallet={wallet} linked={false} prominent /><div className="mt-4 flex items-center gap-2.5"><ChainBadge chain={wallet.chain} />{wallet.labels.map(label => <Label key={label}>{label}</Label>)}</div></div><div className="flex items-center gap-2"><Button variant="secondary"><Edit3 className="h-3 w-3" />Edit</Button><Button variant="secondary"><FolderPlus className="h-3 w-3" />Add to list</Button><CopyButton value={wallet.address} /><Button variant="ghost" aria-label="More"><MoreHorizontal className="h-3.5 w-3.5" /></Button></div></header>

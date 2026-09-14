@@ -1,4 +1,6 @@
-export type Chain = "Solana" | "HOOD";
+import { chainDisplayNames, type Chain as DomainChain } from "@/lib/domain/chain";
+
+export type Chain = (typeof chainDisplayNames)[DomainChain];
 export type ActivityAction = "Buy" | "Sell" | "Swap" | "Transfer";
 
 export type Activity = {
@@ -28,6 +30,16 @@ export type Wallet = {
   events24h: number;
   volume24h: string;
   lastSeen: string;
+};
+
+export type WalletList = {
+  name: string;
+  count: number;
+  solana: number;
+  hood: number;
+  volume: string;
+  lastActivity: string;
+  members: string[];
 };
 
 export const wallets: Wallet[] = [
@@ -70,7 +82,7 @@ export const activities: Activity[] = Array.from({ length: 40 }, (_, index) => {
   };
 });
 
-export const lists = [
+export const lists: WalletList[] = [
   { name: "Smart Money", count: 12, solana: 9, hood: 3, volume: "$428.2K", lastActivity: "8 sec ago", members: ["Smart Money 01", "Northstar", "Quiet Conviction"] },
   { name: "Whales", count: 8, solana: 5, hood: 3, volume: "$1.24M", lastActivity: "22 sec ago", members: ["HOOD Whale", "Smart Money 01"] },
   { name: "HOOD Traders", count: 7, solana: 0, hood: 7, volume: "$684.9K", lastActivity: "41 sec ago", members: ["HOOD Whale", "Momentum", "HOOD Market Maker"] },

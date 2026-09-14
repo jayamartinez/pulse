@@ -2,18 +2,18 @@
 
 import { ArrowUpRight, SlidersHorizontal } from "lucide-react";
 import { useMemo, useState } from "react";
-import { activities, type ActivityAction, type Chain } from "@/lib/data";
+import { dashboardActivities, type DashboardActivityAction, type DashboardChain } from "@/lib/application/pulse-dashboard";
 import { ActionBadge, ChainBadge, SearchInput, Select } from "@/components/ui";
 
 export function ActivityTable({ limit, showFilters = true, initialWallet = "All", allowedWallets }: { limit?: number; showFilters?: boolean; initialWallet?: string; allowedWallets?: string[] }) {
   const [search, setSearch] = useState("");
-  const [chain, setChain] = useState<"All" | Chain>("All");
-  const [action, setAction] = useState<"All" | ActivityAction>("All");
+  const [chain, setChain] = useState<"All" | DashboardChain>("All");
+  const [action, setAction] = useState<"All" | DashboardActivityAction>("All");
   const [wallet, setWallet] = useState(initialWallet);
 
   const visible = useMemo(() => {
     const query = search.toLowerCase();
-    return activities.filter(item =>
+    return dashboardActivities.filter(item =>
       (!allowedWallets || allowedWallets.includes(item.wallet)) &&
       (chain === "All" || item.chain === chain) &&
       (action === "All" || item.action === action) &&
@@ -26,8 +26,8 @@ export function ActivityTable({ limit, showFilters = true, initialWallet = "All"
     {showFilters && <div className="flex flex-wrap items-center gap-2 border-b border-[var(--border)] py-3">
       <span className="mr-2 hidden text-[12px] text-[var(--muted)] md:block">Filters</span>
       <SearchInput value={search} onChange={event => setSearch(event.target.value)} placeholder="Search wallet, asset, tx" className="w-full sm:w-[220px]" />
-      <Select value={chain} onChange={event => setChain(event.target.value as "All" | Chain)} className="w-[142px]"><option value="All">All chains</option><option>Solana</option><option>HOOD</option></Select>
-      <Select value={action} onChange={event => setAction(event.target.value as "All" | ActivityAction)} className="w-[148px]"><option value="All">All activity</option><option>Buy</option><option>Sell</option><option>Swap</option><option>Transfer</option></Select>
+      <Select value={chain} onChange={event => setChain(event.target.value as "All" | DashboardChain)} className="w-[142px]"><option value="All">All chains</option><option>Solana</option><option>HOOD</option></Select>
+      <Select value={action} onChange={event => setAction(event.target.value as "All" | DashboardActivityAction)} className="w-[148px]"><option value="All">All activity</option><option>Buy</option><option>Sell</option><option>Swap</option><option>Transfer</option></Select>
       <Select value={wallet} onChange={event => setWallet(event.target.value)} className="w-[180px]"><option value="All">All wallets</option><option value="Smart Money 01">🐋 Smart Money 01</option><option value="westside.sol">👀 westside.sol</option><option value="HOOD Whale">🦈 HOOD Whale</option><option value="Dev Wallet">🧑‍💻 Dev Wallet</option><option value="Momentum">🎯 Momentum</option></Select>
       <button aria-label="More filters" className="ml-auto grid h-9 w-9 place-items-center rounded-md border border-[var(--border)] text-[var(--muted)] hover:border-[var(--border-strong)] hover:text-white"><SlidersHorizontal className="h-4 w-4" /></button>
     </div>}

@@ -1,5 +1,6 @@
 import { ChevronDown, Search } from "lucide-react";
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from "react";
+import type { DashboardActivityAction, DashboardChain } from "@/lib/application/pulse-dashboard";
 
 export function Button({ className = "", variant = "primary", ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "ghost" }) {
   const variants = {
@@ -35,7 +36,7 @@ export function StatusIndicator({ label = "Live", tone = "green" }: { label?: st
   return <span className="inline-flex items-center gap-1.5 text-[12px] text-[var(--muted)]"><span className={`h-1.5 w-1.5 rounded-full ${colors[tone]} ${tone === "green" ? "live-dot" : ""}`} />{label}</span>;
 }
 
-export function ChainBadge({ chain }: { chain: "Solana" | "HOOD" }) {
+export function ChainBadge({ chain }: { chain: DashboardChain }) {
   return <span className="text-[10px] font-medium uppercase tracking-[.035em] text-[#85858b]">{chain}</span>;
 }
 
@@ -43,7 +44,7 @@ export function Label({ children }: { children: ReactNode }) {
   return <span className="inline-flex h-5 items-center rounded border border-[var(--border)] px-1.5 text-[10px] text-[#8e8e94]">{children}</span>;
 }
 
-export function ActionBadge({ action }: { action: "Buy" | "Sell" | "Swap" | "Transfer" }) {
+export function ActionBadge({ action }: { action: DashboardActivityAction }) {
   const styles = { Buy: "text-[var(--green)]", Sell: "text-[var(--red)]", Swap: "text-[#b8aa82]", Transfer: "text-[#96969c]" };
   return <span className={`inline-flex items-center gap-2 text-[10px] font-semibold ${styles[action]}`}><span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />{action.toUpperCase()}</span>;
 }

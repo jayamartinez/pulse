@@ -5,13 +5,13 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ChainBadge, Label, SearchInput, Select } from "@/components/ui";
 import { WalletIdentity } from "@/components/wallet-identity";
-import { wallets } from "@/lib/data";
+import { dashboardWallets } from "@/lib/application/pulse-dashboard";
 
 export function WalletsTable() {
   const [search, setSearch] = useState("");
   const [chain, setChain] = useState("All");
   const [label, setLabel] = useState("All");
-  const visible = useMemo(() => wallets.filter(wallet =>
+  const visible = useMemo(() => dashboardWallets.filter(wallet =>
     (chain === "All" || wallet.chain === chain) &&
     (label === "All" || wallet.labels.includes(label)) &&
     (!search || [wallet.name, wallet.address, wallet.list, ...wallet.labels].join(" ").toLowerCase().includes(search.toLowerCase()))

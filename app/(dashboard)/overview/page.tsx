@@ -4,7 +4,7 @@ import { ActivityTable } from "@/components/activity-table";
 import { AddWalletButton } from "@/components/add-wallet-sheet";
 import { ChainBadge, PageHeader, SectionHeader, StatusIndicator } from "@/components/ui";
 import { WalletIdentity } from "@/components/wallet-identity";
-import { wallets } from "@/lib/data";
+import { dashboardWallets } from "@/lib/application/pulse-dashboard";
 
 export default function OverviewPage() {
   return <div className="fade-up">
@@ -23,7 +23,7 @@ export default function OverviewPage() {
       <div className="grid gap-10 lg:grid-cols-[1fr_320px]">
         <section className="border-t border-[var(--border)]">
           <SectionHeader title="Recently active" detail="Last 60 min" />
-          <div className="divide-y divide-[var(--border)]">{wallets.slice(0, 5).map(wallet => <div key={wallet.slug} className="flex h-14 items-center justify-between"><WalletIdentity wallet={wallet} /><div className="ml-3 text-right"><div className="tabular text-[12px] text-[var(--text)]">{wallet.volume24h}</div><div className="mt-1 text-[10px] text-[var(--muted-2)]">{wallet.lastSeen}</div></div></div>)}</div>
+          <div className="divide-y divide-[var(--border)]">{dashboardWallets.slice(0, 5).map(wallet => <div key={wallet.slug} className="flex h-14 items-center justify-between"><WalletIdentity wallet={wallet} /><div className="ml-3 text-right"><div className="tabular text-[12px] text-[var(--text)]">{wallet.volume24h}</div><div className="mt-1 text-[10px] text-[var(--muted-2)]">{wallet.lastSeen}</div></div></div>)}</div>
         </section>
         <section className="border-t border-[var(--border)]">
           <SectionHeader title="Stream health" action={<StatusIndicator label="Healthy" />} />
