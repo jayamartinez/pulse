@@ -5,7 +5,7 @@ export type Wallet = {
   chain: Chain;
   address: string;
   name: string | null;
-  emoji?: string;
+  emoji?: string | null;
   alertsOnToast: boolean;
   alertsOnBubble: boolean;
   alertsOnFeed: boolean;

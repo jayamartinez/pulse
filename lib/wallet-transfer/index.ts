@@ -1,4 +1,5 @@
-import type { Chain } from "../domain/chain";
+import type { Chain } from "../domain/chain.ts";
+import { isValidSolanaAddress } from "../domain/solana-address.ts";
 
 export const walletTransferDefaults = {
   alertsOnToast: true,
@@ -38,13 +39,12 @@ const MAX_ITEMS = 2_000;
 const MAX_GROUPS = 50;
 const MAX_GROUP_LENGTH = 80;
 const MAX_EMOJI_LENGTH = 32;
-const solanaAddressPattern = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 const evmAddressPattern = /^0x[a-fA-F0-9]{40}$/;
 const emojiPattern = /\p{Extended_Pictographic}/u;
 
 export function inferWalletChain(address: string): Chain | null {
   if (evmAddressPattern.test(address)) return "hood";
-  if (solanaAddressPattern.test(address)) return "solana";
+  if (isValidSolanaAddress(address)) return "solana";
   return null;
 }
 

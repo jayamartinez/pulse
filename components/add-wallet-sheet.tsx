@@ -10,6 +10,8 @@ export function AddWalletButton({ compact = false }: { compact?: boolean }) {
   const [open, setOpen] = useState(false);
   const [saved, setSaved] = useState(false);
   const [emoji, setEmoji] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const dialogRef = useRef<HTMLElement>(null);
   const openerRef = useRef<HTMLButtonElement>(null);
 
@@ -30,11 +32,15 @@ export function AddWalletButton({ compact = false }: { compact?: boolean }) {
     window.setTimeout(() => openerRef.current?.focus(), 0);
   }
 
-  function submit(event: React.FormEvent) {
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (emoji && !isWalletEmoji(emoji)) return;
-    setSaved(true);
-    window.setTimeout(close, 850);
+    setSubmitting(true); setError(null);
+    const form = new FormData(event.currentTarget);
+    const response = await fetch("/api/wallets", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ address: form.get("address"), name: form.get("name"), emoji, labels: String(form.get("labels") ?? "").split(",").map(value => value.trim()).filter(Boolean), lists: form.get("list") === "No list" ? [] : [String(form.get("list"))] }) });
+    setSubmitting(false);
+    if (!response.ok) { const payload = await response.json() as { error?: string }; setError(payload.error ?? "Unable to add wallet."); return; }
+    setSaved(true); window.setTimeout(close, 850);
   }
 
   function onKeyDown(event: React.KeyboardEvent<HTMLElement>) {
@@ -65,14 +71,15 @@ export function AddWalletButton({ compact = false }: { compact?: boolean }) {
         </div>
         <form className="flex flex-1 flex-col" onSubmit={submit}>
           <div className="space-y-5 overflow-y-auto p-5">
-            <Field label="Wallet address" required><Input required placeholder="Paste a Solana or HOOD address" className="mono" /></Field>
-            <Field label="Chain" hint="Pulse can usually detect this automatically."><Select className="w-full" defaultValue="auto"><option value="auto">Auto-detect</option><option>Solana</option><option>HOOD</option></Select></Field>
-            <Field label="Custom name"><Input placeholder="e.g. Smart Money 02" /></Field>
+            <Field label="Wallet address" required><Input name="address" required placeholder="Paste a Solana address" className="mono" /></Field>
+            <Field label="Chain" hint="Solana is supported for live tracking in this release."><Select className="w-full" defaultValue="solana" disabled><option value="solana">Solana</option></Select></Field>
+            <Field label="Custom name"><Input name="name" placeholder="e.g. Smart Money 02" /></Field>
             <Field label="Emoji" hint="Optional. Paste or type one standard emoji."><Input value={emoji} onChange={event => setEmoji(event.target.value)} aria-invalid={Boolean(emoji && !isWalletEmoji(emoji))} maxLength={32} placeholder="🥤" className="w-20 text-center text-[17px]" />{emoji && !isWalletEmoji(emoji) && <span className="mt-1.5 block text-[11px] text-[var(--red)]">Use one emoji, including supported multi-codepoint emoji.</span>}</Field>
-            <Field label="Labels"><Input placeholder="Add labels" /><div className="mt-2 flex gap-1.5"><Label>smart money</Label><Label>whale</Label><button type="button" className="text-[11px] text-[var(--muted)] hover:text-white">+ Create label</button></div></Field>
-            <Field label="Lists"><Select className="w-full"><option>No list</option><option>Smart Money</option><option>Whales</option><option>HOOD Traders</option><option>Developers</option></Select></Field>
+            <Field label="Labels"><Input name="labels" placeholder="Comma-separated labels" /><div className="mt-2 flex gap-1.5"><Label>smart money</Label><Label>whale</Label></div></Field>
+            <Field label="Lists"><Select name="list" className="w-full"><option>No list</option><option>Smart Money</option><option>Whales</option><option>Developers</option></Select></Field>
+            {error && <p role="alert" className="text-[11px] text-[var(--red)]">{error}</p>}
           </div>
-          <div className="mt-auto flex items-center justify-end gap-2 border-t border-[var(--border)] p-4"><Button type="button" variant="ghost" onClick={close}>Cancel</Button><Button type="submit" disabled={Boolean(emoji && !isWalletEmoji(emoji))} className="min-w-28">{saved ? <><Check className="h-3.5 w-3.5" />Tracking</> : "Add wallet"}</Button></div>
+          <div className="mt-auto flex items-center justify-end gap-2 border-t border-[var(--border)] p-4"><Button type="button" variant="ghost" onClick={close}>Cancel</Button><Button type="submit" disabled={submitting || Boolean(emoji && !isWalletEmoji(emoji))} className="min-w-28">{saved ? <><Check className="h-3.5 w-3.5" />Tracking</> : submitting ? "Adding…" : "Add wallet"}</Button></div>
         </form>
       </aside>
     </div>;

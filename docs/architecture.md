@@ -1,33 +1,38 @@
 # Pulse architecture
 
-Pulse is a self-hostable wallet-intelligence application. Version 0.1 tracks Solana and Robinhood Chain (HOOD) wallet activity while preserving the existing dashboard UI.
+Pulse is a self-hostable wallet-intelligence application. Version 0.1 now ingests real Solana activity through Helius; HOOD remains planned.
 
-## Current scope
+## Implemented
 
-- **Implemented:** shared chain and normalized wallet-event domain types, PostgreSQL schema and Drizzle migration tooling, server-only credential resolution, provider contracts, and a UI-to-service-to-mock-repository boundary.
-- **Scaffolded:** database client and provider settings store interface. These are ready to receive database-backed repositories and secure encrypted settings persistence.
-- **Planned:** Helius-backed Solana ingestion, Alchemy-backed HOOD ingestion, backfill, subscriptions, and live activity delivery.
+- PostgreSQL-backed Solana wallet persistence, including names, emoji, labels, lists, and alert preferences.
+- Helius Solana provider with server-side `HELIUS_API_KEY` resolution, health checks, bounded history fetches, and retry handling.
+- A 100-transaction Solana backfill when a wallet is added. It uses Helius Enhanced Transaction history with the `balanceChanged` token-account filter and is safe to repeat.
+- Helius LaserStream `transactionSubscribe` monitoring for tracked wallet addresses, restored by Next.js instrumentation when the single Pulse server starts.
+- Provider-neutral `TradeEvent` and `TransferEvent` persistence and SSE delivery of normalized events to the browser.
 
-## Data model
+## Event model and deduplication
 
-PostgreSQL is the system of record. Wallets have a chain, address, custom name, optional emoji, and timestamps. Labels and wallet lists use join tables, so labels and list membership are many-to-many relationships.
+Events have a provider-neutral `eventIdentity`, enforced by a PostgreSQL unique index. It is derived from the transaction signature and stable event position (`trade:<wallet>`, `native:<index>`, or `token:<index>`). This removes duplicates from backfill/realtime overlap and provider retries without relying on process memory.
 
-`WalletEvent` is a provider-neutral discriminated union of `TradeEvent` and `TransferEvent`. Trades carry side, token/native/USD amounts, and market cap; transfers carry from/to addresses and optional resolved wallet identities. Provider metadata may retain the original `swap` source type. The current database enum remains backward-compatible (`buy`, `sell`, `swap`, `transfer`); no migration is needed until persistence is switched to the refined application model.
+Trade classification is deliberately conservative: only a material native SOL balance change (at least 0.01 SOL) paired with an opposing token balance change is a trade. SOL out/token in is a buy; token out/SOL in is a sell. Fee-sized balance changes and ambiguous token-to-token activity are not manufactured into buy/sell events. Transfers are emitted separately from Helius native and SPL transfer records. Helius does not provide a reliable market cap here, so market cap and USD values stay nullable.
 
-## Providers and configuration
+## Helius integration
 
-The application depends on a small `ChainProvider` contract: connection validation, wallet-history retrieval, transaction lookup, activity subscription, and health reporting. Helius will implement the Solana adapter; Alchemy will implement the HOOD adapter. Neither adapter is implemented or invoked yet.
+The provider uses the authenticated mainnet endpoint for parsed address history and transaction parsing, plus LaserStream WebSocket `transactionSubscribe` at confirmed commitment. Those APIs were selected because Helius supplies parsed transaction/account data and a transaction-level address filter without exposing raw provider data to the UI. Requests retry transient 408/429/5xx responses with bounded exponential backoff. Secrets and raw payloads are never logged or sent to browsers.
 
-Provider credentials resolve in this order: environment variables, then a future secure provider-settings store, then unavailable. `HELIUS_API_KEY` and `ALCHEMY_API_KEY` are server-only values and are never passed to client components. Persisted UI-entered credentials are intentionally deferred until server-side encryption is designed.
+Server startup restores subscriptions from persisted Solana wallets. New events are persisted before being published over the `/api/events` Server-Sent Events route. This is intentionally a single-server v0.1 design; it does not use distributed coordination, Redis, Kafka, or a webhook endpoint.
 
-```mermaid
-flowchart LR
-  H[Helius / Solana adapter] --> N[Normalized WalletEvent]
-  A[Alchemy / HOOD adapter] --> N
-  N --> P[(PostgreSQL)]
-  P --> S[Application services]
-  S --> R[Next.js UI / realtime API]
-  M[Mock repository, current] --> S
-```
+## Provider credentials and status
 
-The current dashboard continues to read fixture data through the application service boundary. Switching to real repositories later should not require provider-specific logic in UI components.
+Credentials resolve server-side from `HELIUS_API_KEY` (then the future secure settings store). The key is never included in a response, client component, or log. The provider health contract reports configured/available state and a checked timestamp; the settings surface is the intended home for it.
+
+## Planned
+
+- HOOD / Alchemy runtime integration
+- Social tracking
+- Reliable token pricing and market-cap enrichment
+- Advanced analytics, alerts, sound/highlight behavior, authentication, billing, and multi-instance coordination
+
+## Known v0.1 limitations
+
+Enhanced transaction fields do not guarantee token symbols or prices, so unknown symbols and null prices are preserved rather than guessed. The current dashboard’s fixture UI remains the explicit no-database demo surface; configure `DATABASE_URL` and `HELIUS_API_KEY`, run the migrations, then use the API-backed ingestion path for real tracking.
